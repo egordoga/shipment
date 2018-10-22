@@ -10,5 +10,7 @@ public class MvcConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/load_db").setViewName("load_db");
+        registry.addViewController("/error").setViewName("error");
+        registry.addViewController("/group_by_client").setViewName("group_by_client");
     }
 }

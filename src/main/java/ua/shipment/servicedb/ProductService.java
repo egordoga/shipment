@@ -3,6 +3,7 @@ package ua.shipment.servicedb;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.shipment.dao.ProductRepository;
+import ua.shipment.entity.Client;
 import ua.shipment.entity.Product;
 
 import java.util.List;
@@ -48,5 +49,10 @@ public class ProductService implements IProductService {
     @Override
     public List<Product> findAllProductsByIsShipAndInvoiceId(Long invId) {
         return productRepository.findAllByIsShipAndInvoice_Id((byte) 0, invId);
+    }
+
+    @Override
+    public List<Product> groupByNoShipProdsByClient(Client client) {
+        return productRepository.findAllByIsShipAndInvoice_Client((byte) 0, client);
     }
 }

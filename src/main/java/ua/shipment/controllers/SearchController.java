@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import ua.shipment.entity.Client;
 import ua.shipment.entity.Invoice;
 import ua.shipment.entity.Product;
+import ua.shipment.model.ProdForm;
 import ua.shipment.servicedb.ClientService;
 import ua.shipment.servicedb.InvoiceService;
 import ua.shipment.servicedb.ProductService;
@@ -59,6 +60,32 @@ public class SearchController {
                 }
                 model.addAttribute("invs", invList);
                 return "no_ship_invoices";
+            case "5":
+                List<Client> clnts = clientService.findClientByNameShortSubstring(search);
+                if (clnts.size() == 0) {
+                    model.addAttribute("errMsg", "По данному запросу ничего не найдено.");
+                    return "error";
+                } else if (clnts.size() > 1) {
+                    model.addAttribute("errMsg", "По данному запросу найдено более одного клиента.\nУточните запрос.");
+                    model.addAttribute("list", clnts);
+                    return "error";
+                }
+                List<Product> list = productService.groupByNoShipProdsByClient(clnts.get(0));
+                Map<String, ProdForm> groupBy = new HashMap<>();
+                for (Product product : list) {
+                    String vend = product.getProductSmall().getVendorCode();
+                    if (!groupBy.containsKey(vend)) {
+                        groupBy.put(vend, new ProdForm(vend, product.getProductSmall().getName(), product.getRestQuantity()));
+                    } else {
+                        ProdForm pf = groupBy.get(vend);
+                        pf.setSum(pf.getSum().add(product.getRestQuantity()));
+                        groupBy.put(vend, pf);
+                    }
+                }
+
+                model.addAttribute("client", clnts.get(0));
+                model.addAttribute("mapGroup", groupBy);
+                return "group_by_client";
         }
         return "error";
     }
